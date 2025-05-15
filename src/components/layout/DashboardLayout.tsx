@@ -1,4 +1,3 @@
-
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -32,14 +31,13 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children, userRole = "citizen" }: DashboardLayoutProps) => {
   const location = useLocation();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const { signOut, profile } = useAuth();
+  
+  // Use the profile role if available, otherwise fall back to the prop
+  const role = profile?.role || userRole;
 
   const handleLogout = () => {
-    // This would use Supabase auth logout once integrated
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-    // Would redirect to home page
+    signOut();
   };
 
   const navItems = [
@@ -100,7 +98,7 @@ const DashboardLayout = ({ children, userRole = "citizen" }: DashboardLayoutProp
   ];
 
   const filteredNavItems = navItems.filter(item => 
-    item.roles.includes(userRole)
+    item.roles.includes(role)
   );
 
   const isActive = (path: string) => {
@@ -170,9 +168,9 @@ const DashboardLayout = ({ children, userRole = "citizen" }: DashboardLayoutProp
               <Button variant="outline" className="hidden md:flex gap-2">
                 <div className="flex items-center">
                   <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
-                    {userRole === "admin" ? "A" : userRole === "municipal" ? "M" : "C"}
+                    {role === "admin" ? "A" : role === "municipal" ? "M" : "C"}
                   </div>
-                  <span className="ml-2 font-medium">{userRole === "admin" ? "Admin" : userRole === "municipal" ? "Officer" : "Citizen"}</span>
+                  <span className="ml-2 font-medium">{role === "admin" ? "Admin" : role === "municipal" ? "Officer" : "Citizen"}</span>
                   <ChevronDown size={16} className="ml-2" />
                 </div>
               </Button>

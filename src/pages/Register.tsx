@@ -1,11 +1,12 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +16,15 @@ const Register = () => {
     confirmPassword: "",
     role: "citizen", // Default role
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const { signUp, isLoading, profile, getRedirectPath } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If user is already authenticated and has a profile, redirect to their dashboard
+    if (profile) {
+      navigate(getRedirectPath());
+    }
+  }, [profile, navigate, getRedirectPath]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,38 +35,11 @@ const Register = () => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Passwords do not match",
-        description: "Please ensure both passwords are identical.",
-        variant: "destructive",
-      });
+      alert("Passwords do not match");
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      // This would be replaced with Supabase auth once integrated
-      console.log("Registration attempt:", formData);
-      
-      // Simulate successful registration
-      setTimeout(() => {
-        toast({
-          title: "Registration Successful",
-          description: "Welcome to CivGuard! You can now sign in.",
-        });
-        // Would redirect to login page
-      }, 1000);
-    } catch (error) {
-      console.error("Registration error:", error);
-      toast({
-        title: "Registration Failed",
-        description: "An error occurred during registration. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await signUp(formData.email, formData.password, formData.role, formData.name);
   };
 
   return (
@@ -85,6 +67,7 @@ const Register = () => {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="John Doe"
+                disabled={isLoading}
               />
             </div>
             
@@ -99,6 +82,7 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="name@example.com"
+                disabled={isLoading}
               />
             </div>
             
@@ -112,6 +96,7 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
+                disabled={isLoading}
               />
             </div>
             
@@ -125,6 +110,7 @@ const Register = () => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="••••••••"
+                disabled={isLoading}
               />
             </div>
             
@@ -136,16 +122,20 @@ const Register = () => {
                 className="flex space-x-4 mt-2"
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="citizen" id="citizen" />
+                  <RadioGroupItem value="citizen" id="citizen" disabled={isLoading} />
                   <Label htmlFor="citizen" className="cursor-pointer">Citizen</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="municipal" id="municipal" />
-                  <Label htmlFor="municipal" className="cursor-pointer">Municipal Officer</Label>
+                  <RadioGroupItem value="officer" id="officer" disabled={isLoading} />
+                  <Label htmlFor="officer" className="cursor-pointer">Municipal Officer</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="admin" id="admin" disabled={isLoading} />
+                  <Label htmlFor="admin" className="cursor-pointer">Admin</Label>
                 </div>
               </RadioGroup>
               <p className="text-xs text-gray-500 mt-1">
-                Note: Municipal Officer accounts require admin approval.
+                Note: Officer and Admin accounts require approval.
               </p>
             </div>
           </div>
@@ -155,7 +145,14 @@ const Register = () => {
             className="w-full" 
             disabled={isLoading}
           >
-            {isLoading ? "Creating account..." : "Create account"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                Creating account...
+              </>
+            ) : (
+              "Create account"
+            )}
           </Button>
           
           <p className="text-xs text-center text-gray-500 mt-4">

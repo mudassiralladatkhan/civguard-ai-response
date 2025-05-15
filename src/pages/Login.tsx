@@ -1,43 +1,29 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, isLoading, profile, getRedirectPath } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If user is already authenticated and has a profile, redirect to their dashboard
+    if (profile) {
+      navigate(getRedirectPath());
+    }
+  }, [profile, navigate, getRedirectPath]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      // This would be replaced with Supabase auth once integrated
-      console.log("Login attempt:", { email, password });
-      
-      // Simulate successful login
-      setTimeout(() => {
-        toast({
-          title: "Login Successful",
-          description: "Welcome back to CivGuard.",
-        });
-        // Would redirect to dashboard based on user role
-      }, 1000);
-    } catch (error) {
-      console.error("Login error:", error);
-      toast({
-        title: "Login Failed",
-        description: "Please check your credentials and try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await signIn(email, password);
   };
 
   return (
@@ -66,6 +52,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
+                disabled={isLoading}
               />
             </div>
             
@@ -84,6 +71,7 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -93,7 +81,14 @@ const Login = () => {
             className="w-full" 
             disabled={isLoading}
           >
-            {isLoading ? "Signing in..." : "Sign in"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                Signing in...
+              </>
+            ) : (
+              "Sign in"
+            )}
           </Button>
           
           <div className="relative my-4">
@@ -104,10 +99,10 @@ const Login = () => {
           </div>
           
           <div className="grid grid-cols-2 gap-4">
-            <Button type="button" variant="outline" className="w-full">
+            <Button type="button" variant="outline" className="w-full" disabled={isLoading}>
               Google
             </Button>
-            <Button type="button" variant="outline" className="w-full">
+            <Button type="button" variant="outline" className="w-full" disabled={isLoading}>
               Facebook
             </Button>
           </div>

@@ -10,6 +10,8 @@ import Register from "./pages/Register";
 import ReportIssue from "./pages/ReportIssue";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -19,17 +21,47 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard userRole="citizen" />} />
-          <Route path="/admin-dashboard" element={<Dashboard userRole="admin" />} />
-          <Route path="/municipal-dashboard" element={<Dashboard userRole="municipal" />} />
-          <Route path="/report-issue" element={<ReportIssue />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute allowedRoles={['citizen']}>
+                  <Dashboard userRole="citizen" />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin-dashboard" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Dashboard userRole="admin" />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/municipal-dashboard" 
+              element={
+                <ProtectedRoute allowedRoles={['officer']}>
+                  <Dashboard userRole="municipal" />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/report-issue" 
+              element={
+                <ProtectedRoute allowedRoles={['citizen']}>
+                  <ReportIssue />
+                </ProtectedRoute>
+              } 
+            />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
