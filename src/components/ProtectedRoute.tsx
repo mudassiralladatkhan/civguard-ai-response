@@ -2,6 +2,7 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/hooks/use-toast';
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -25,16 +26,32 @@ const ProtectedRoute = ({
 
   // If not authenticated, redirect to login
   if (!user) {
+    toast({
+      title: "Authentication required",
+      description: "Please log in to access this page",
+      variant: "default",
+    });
     return <Navigate to="/login" replace />;
   }
 
   // If authenticated but no profile, something went wrong
   if (!profile) {
+    toast({
+      title: "Profile error",
+      description: "Unable to load your profile. Please try logging in again.",
+      variant: "destructive",
+    });
     return <Navigate to="/login" replace />;
   }
 
   // If authenticated but not having the right role
   if (!allowedRoles.includes(profile.role)) {
+    toast({
+      title: "Access restricted",
+      description: `You don't have permission to access this page`,
+      variant: "destructive",
+    });
+    
     // Redirect based on role
     switch (profile.role) {
       case 'admin':

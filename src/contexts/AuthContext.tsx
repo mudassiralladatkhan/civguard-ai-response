@@ -74,6 +74,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         console.error('Error fetching user profile:', error);
+        toast({
+          title: "Profile error",
+          description: "Could not retrieve your profile. Please try again later.",
+          variant: "destructive",
+        });
         setIsLoading(false);
         return;
       }
@@ -83,6 +88,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Error:', error);
+      toast({
+        title: "System error",
+        description: "An unexpected error occurred. Please try again later.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -98,8 +108,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error('No user returned after sign up');
+      if (authError) {
+        throw authError;
+      }
+
+      if (!authData.user) {
+        throw new Error('No user returned after sign up');
+      }
 
       // 2. Create the user profile in the users table
       const { error: profileError } = await supabase.from('users').insert([
@@ -111,7 +126,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       ]);
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        throw profileError;
+      }
 
       toast({
         title: "Registration successful",
@@ -120,12 +137,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // The onAuthStateChange will handle setting the user and session
     } catch (error: any) {
+      let errorMessage = "An error occurred during registration.";
+      
+      if (error.message) {
+        // Extract more specific error message
+        if (error.message.includes("already registered")) {
+          errorMessage = "This email is already registered. Please use a different email or try logging in.";
+        } else if (error.message.includes("password")) {
+          errorMessage = "Password error: " + error.message;
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Registration failed",
-        description: error.message || "An error occurred during registration.",
+        description: errorMessage,
         variant: "destructive",
       });
       console.error('Error signing up:', error);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -133,19 +164,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
+      if (data.user) {
+        // Fetch user profile to get role for redirection
+        const { data: profileData, error: profileError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching user role:', profileError);
+        } else if (profileData) {
+          // Successfully fetched profile with role
+          toast({
+            title: "Login successful",
+            description: `Welcome back to CivGuard.`,
+          });
+          
+          // Redirect based on role
+          navigate(getRedirectPathByRole(profileData.role));
+          return;
+        }
+      }
+
       toast({
         title: "Login successful",
         description: "Welcome back to CivGuard.",
       });
 
-      // The session will be set by the onAuthStateChange listener
+      // Default redirect if we couldn't determine the role
+      navigate('/dashboard');
+
     } catch (error: any) {
       toast({
         title: "Login failed",
@@ -153,6 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         variant: "destructive",
       });
       console.error('Error signing in:', error);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -178,10 +235,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getRedirectPath = () => {
-    if (!profile) return '/';
-    
-    switch (profile.role) {
+  const getRedirectPathByRole = (role: string) => {
+    switch (role) {
       case 'admin':
         return '/admin-dashboard';
       case 'officer':
@@ -190,6 +245,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       default:
         return '/dashboard';
     }
+  };
+
+  const getRedirectPath = () => {
+    if (!profile) return '/';
+    return getRedirectPathByRole(profile.role);
   };
 
   const value = {
