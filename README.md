@@ -1,73 +1,134 @@
-# Welcome to your Lovable project
+<div align="center">
 
-## Project info
+# 🚨 CivGuard AI
 
-**URL**: https://raw.githubusercontent.com/mudassiralladatkhan/civguard-ai-response/main/monaster/response-civguard-ai-2.5.zip
+### AI-Powered Emergency Response & Disaster Management Platform
 
-## How can I edit this code?
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Backend-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![TanStack](https://img.shields.io/badge/TanStack_Query-5-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)](https://tanstack.com/query)
 
-There are several ways of editing your application.
+<br/>
 
-**Use Lovable**
+**Real-time crisis coordination platform that automates emergency triage, resource allocation, and multi-agency response.**
 
-Simply visit the [Lovable Project](https://raw.githubusercontent.com/mudassiralladatkhan/civguard-ai-response/main/monaster/response-civguard-ai-2.5.zip) and start prompting.
+[Features](#-features) · [Architecture](#-architecture) · [Setup](#-quick-start)
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+</div>
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🎯 Problem Statement
 
-The only requirement is having https://raw.githubusercontent.com/mudassiralladatkhan/civguard-ai-response/main/monaster/response-civguard-ai-2.5.zip & npm installed - [install with nvm](https://raw.githubusercontent.com/mudassiralladatkhan/civguard-ai-response/main/monaster/response-civguard-ai-2.5.zip)
+During natural disasters and emergencies, coordination between agencies is chaotic, resource allocation is manual, and response times suffer. CivGuard AI uses artificial intelligence to:
 
-Follow these steps:
+- **Automate triage** — prioritize incoming emergency reports by severity
+- **Optimize resources** — recommend allocation based on availability and proximity
+- **Coordinate response** — real-time dashboard for multi-agency visibility
+- **Reduce response time** — AI-driven decision support eliminates human bottlenecks
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## ✨ Features
 
-# Step 3: Install the necessary dependencies.
-npm i
+| Feature | Description |
+|---------|-------------|
+| 📊 **Live Dashboard** | Real-time emergency status, resource tracking, and incident map |
+| 🚨 **Incident Reporting** | Citizens report emergencies with location, type, and severity |
+| 🤖 **AI Triage** | Automated severity classification and priority assignment |
+| 🏥 **Resource Allocation** | AI recommendations for deploying ambulances, fire units, police |
+| 👥 **Multi-Agency View** | Shared situational awareness across fire, medical, police teams |
+| 🔐 **Role-Based Access** | Login/Register with role-specific dashboards |
+| 📈 **Analytics** | Historical incident data, response time trends, and heatmaps |
+| 🔔 **Real-time Updates** | Supabase Realtime for live incident status changes |
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+---
+
+## 🛠 Tech Stack
+
+```
+Frontend:       React 18 + TypeScript + Vite
+State:          TanStack Query v5 (server state) + React Context (auth)
+Styling:        Tailwind CSS + Radix UI + shadcn/ui components
+Backend:        Supabase (Auth, PostgreSQL, Realtime, Edge Functions)
+Charts:         Recharts for analytics
+Forms:          React Hook Form + Zod validation
+Routing:        React Router DOM v6
+Deployment:     Vercel / Netlify
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+src/
+├── pages/
+│   ├── Index.tsx            # Landing page
+│   ├── Dashboard.tsx        # Main emergency dashboard
+│   ├── Login.tsx            # Authentication
+│   ├── Register.tsx         # New user registration
+│   ├── ReportIssue.tsx      # Citizen incident report form
+│   └── NotFound.tsx         # 404 handler
+├── components/
+│   ├── ui/                  # shadcn/ui design system
+│   ├── layout/              # Page layouts, navigation
+│   └── ProtectedRoute.tsx   # Auth guard
+├── contexts/                # Auth state management
+├── hooks/                   # Custom React hooks
+├── integrations/            # Supabase client & API layer
+└── lib/                     # Utility functions
+```
+
+---
+
+## 🚀 Quick Start
+
+```bash
+git clone https://github.com/mudassiralladatkhan/civguard-ai-response.git
+cd civguard-ai-response
+
+# Install dependencies
+npm install
+
+# Configure environment
+# Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env
+
+# Run development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🧠 AI Decision Flow
 
-**Use GitHub Codespaces**
+```
+Incident Reported → Severity Classification (AI)
+                        ├── Critical → Immediate dispatch + multi-agency alert
+                        ├── High → Priority queue + resource check
+                        ├── Medium → Standard queue + nearest unit
+                        └── Low → Logged + advisory response
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Resource Allocation:
+  Available Units × Proximity × Severity × Specialization = Optimal Assignment
+```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 🎯 Use Cases
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Natural disasters** — flood, earthquake, cyclone response coordination
+- **Urban emergencies** — fire, medical, law enforcement dispatch
+- **Event safety** — large gathering monitoring and incident response
+- **Training simulations** — tabletop exercises for emergency responders
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://raw.githubusercontent.com/mudassiralladatkhan/civguard-ai-response/main/monaster/response-civguard-ai-2.5.zip) and click on Share -> Publish.
+<div align="center">
 
-## Can I connect a custom domain to my Lovable project?
+**Built with 🚨 by [Mudassir Alladatkhan](https://github.com/mudassiralladatkhan)**
 
-Yes, you can!
+*Faster response. Smarter allocation. Lives saved.*
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://raw.githubusercontent.com/mudassiralladatkhan/civguard-ai-response/main/monaster/response-civguard-ai-2.5.zip)
+</div>
